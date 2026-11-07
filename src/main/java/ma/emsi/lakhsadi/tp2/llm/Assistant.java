@@ -1,5 +1,7 @@
 package ma.emsi.lakhsadi.tp2.llm;
 
+import dev.langchain4j.service.Result;
+
 public interface Assistant {
-    String chat(String question);
+    Result<String> chat(String question);
 }

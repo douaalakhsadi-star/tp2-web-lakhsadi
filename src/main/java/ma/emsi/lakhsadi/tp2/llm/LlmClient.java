@@ -7,11 +7,15 @@ import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.google.genai.GoogleGenAiChatModel;
 import dev.langchain4j.service.AiServices;
 import jakarta.enterprise.context.Dependent;
+import dev.langchain4j.service.Result;
+import jakarta.inject.Inject;
 
 import java.io.Serializable;
 
 @Dependent
 public class LlmClient implements Serializable {
+    @Inject
+    private CompteurTokens compteurTokens;
 
     private String systemRole;
     private final ChatMemory chatMemory;
@@ -47,6 +51,15 @@ public class LlmClient implements Serializable {
     }
 
     public String envoyerQuestion(String question) {
-        return assistant.chat(question);
+        Result<String> resultat = assistant.chat(question);
+
+        if (resultat.tokenUsage() != null
+                && resultat.tokenUsage().totalTokenCount() != null) {
+            compteurTokens.ajouter(
+                    resultat.tokenUsage().totalTokenCount()
+            );
+        }
+
+        return resultat.content();
     }
 }
